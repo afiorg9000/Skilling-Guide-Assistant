@@ -32,8 +32,8 @@ Update `config.py` file using your OpenAI key.
 
 To run the Flask web application, use the following command:
 
-    ```bash
+```
     python app.py
-    ```
+```
 
 OpenAI Assistant API Reference can be found here: https://platform.openai.com/docs/api-reference/assistants
