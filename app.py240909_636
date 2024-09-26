@@ -1,0 +1,14 @@
+from flask import Flask
+from routes.permissions import permissions_bp
+from routes.assistant import assistant_bp
+from services.permissions import PermissionsService
+app = Flask(__name__)
+app.secret_key = 'fa86766c4d9d4f36f20af2577da21a7f'
+
+
+@app.route('/testH')
+def hello_world():
+    return 'Hello, World!'
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port='6000')

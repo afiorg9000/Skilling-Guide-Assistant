@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITG Certification Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #chatbot-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 450px;
+            max-width: 90%;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            background-color: white;
+            height: calc(100vh - 60px); /* Adjust the container height */
+            max-height: 80vh; /* Max height for larger screens */
+            overflow: hidden; /* Prevent overflow */
+        }
+
+        #scrollable-content {
+            flex-grow: 1; /* Take up available space */
+            overflow-y: auto; /* Enable vertical scrolling */
+            display: flex;
+            flex-direction: column;
+        }
+        .top-bar {
+            background-color: #2067B2;
+            height: 73px; /* Fixed height */
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 15px;
+            color: white;
+            flex-shrink: 0; /* Prevent shrinking */
+            margin-bottom: 0; /* Ensure no margin affecting layout */
+        }
+
+        .top-bar .close-btn {
+            width: 20px;
+            height: 20px;
+            background: url("https://tstvidstr.blob.core.windows.net/images2211/toggle-chat.png") no-repeat center center;
+            background-size: contain;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .brand {
+            flex-shrink: 0; /* Ensure the brand doesn't shrink */
+            padding: 10px;
+            background-color: white;
+            text-align: center;
+        }
+
+        .brand img {
+            height: 80px;
+        }
+
+        .brand h1 {
+            margin: 10px 0 5px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2067B2;
+        }
+
+        .brand p {
+            font-size: 14px;
+            color: #808285;
+        }
+
+        #chatbotBody {
+            padding: 15px;
+            flex-grow: 1; /* Allow it to grow and scroll */
+            background-color: white;
+            box-sizing: border-box;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .message img {
+            height: 30px;
+            width: 30px;
+            margin-right: 10px;
+        }
+
+        .message .message-content {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        .user-message .message-content {
+            background-color: #e6f3ff;
+            margin-left: auto;
+        }
+
+        #chatInput-container {
+            height: 73px;
+            display: flex;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #ddd;
+            flex-shrink: 0; /* Keep input fixed at the bottom */
+
+        }
+
+
+        #chatInput {
+            flex: 1;
+            padding: 10px 10px; 
+            padding-left: 20px; 
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            font-size: 15px;
+            outline: none;
+        }
+
+
+        #sendMessageBtn i {
+            color: white;
+            font-size: 18px;
+        }
+
+        #pop-up-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 75px;
+            height:75px;
+            background: url('https://tstvidstr.blob.core.windows.net/images2211/MainLogo.png') no-repeat center center;
+            background-size: contain;
+            border: none;
+            border-radius: 50%;
+            display: block;
+            cursor: pointer;
+        }
+
+        .new-chat-icon {
+            width: 20px;
+            height: 20px;
+            background: url("https://tstvidstr.blob.core.windows.net/images2211/new_chat.png") no-repeat center center;
+            background-size: contain;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-right: auto; /* Align to the left */
+        }
+        .loading {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            font-size: 18px; /* Similar font size to message bubble */
+            color: #606060; /* A soft gray color for the dots */
+            background-color: #f1f1f1; /* Match the bubble background color */
+            margin-left: 10px; /* Space between the left edge and the bubble */
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 50%; /* Ensure it doesn't extend too far */
+            /* Remove position: absolute and bottom positioning */
+        }   
+
+
+        .loading span {
+            animation: blink 1s infinite;
+            opacity: 0;
+            font-size: 24px; /* Adjust the size of dots */
+            color: #606060; /* Match dot color with the bubble */
+            padding: 0 3px; /* Spacing between dots */
+        }
+
+        .loading span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 20% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="chatbot-container">
+    <div class="top-bar">
+        <div class="new-chat-icon" onclick="handleSendMessage('new chat')"></div> <!-- Ensure this is clickable -->
+        <div class="close-btn" onclick="toggleChat()"></div>
+    </div>
+
+    <!-- Scrollable content starts here -->
+    <div id="scrollable-content">
+        <div class="brand">
+            <img src="https://tstvidstr.blob.core.windows.net/images2211/MainLogo.png" alt="ITG Certification Guide Logo">
+            <h1>ITG Certification Guide</h1>
+            <p>Here to guide you through ITG Skilling & Certifications</p>
+        </div>
+
+        <div id="chatbotBody">
+            <div id="loadingDots" class="loading" style="display: none;">
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
+            </div>
+            <div id="messagesContainer"></div> <!-- Container for messages -->
+        </div>
+    </div>
+    <!-- Scrollable content ends here -->
+
+    <div id="chatInput-container">
+        <input type="text" id="chatInput" placeholder="Message ITG Skilling Guide..." onkeypress="handleEnterKey(event)" />
+    </div>
+</div>
+
+
+    <button id="pop-up-button" onclick="toggleChat()"></button>
+
+    <script>
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatbot-container');
+            const popUpButton = document.getElementById('pop-up-button');
+            if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
+                chatContainer.style.display = 'flex';
+                popUpButton.style.display = 'none';
+            } else {
+                chatContainer.style.display = 'none';
+                popUpButton.style.display = 'block';
+            }
+        }
+
+        function createNewChat() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = ''; // Clear previous messages
+
+            const loadingDots = document.getElementById('loadingDots');
+            loadingDots.style.display = 'none'; // Hide loading animation
+
+            // Reset the input field
+            const chatInput = document.getElementById('chatInput');
+            chatInput.value = ''; // Clear the input field
+        }
+
+        async function handleSendMessage(command) {
+            console.log("handleSendMessage called with command:", command); // Debugging log
+            const chatInput = document.getElementById('chatInput');
+            const message = command === 'new chat' ? '' : chatInput.value.trim();
+
+            if (command === 'new chat') {
+                createNewChat(); // Clear previous messages
+                console.log("New chat initiated"); // Debugging log
+                return; // Exit early for new chat
+            } else if (!message) return;
+
+            appendMessage('user-message', message);
+            chatInput.value = '';
+
+            // Show loading animation
+            const loadingDots = document.getElementById('loadingDots');
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.appendChild(loadingDots);
+            loadingDots.style.display = 'flex';
+
+            const response = await fetch('/assistant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            });
+
+            loadingDots.style.display = 'none'; // Hide loading animation
+
+            const responseData = await response.json();
+            if (responseData.assistant_response) {
+                appendMessage('assistant-message', responseData.assistant_response);
+            } else {
+                appendMessage('assistant-message', 'Sorry, something went wrong.');
+            }
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleNewChat() {
+            console.log("New chat button clicked"); // Debugging log
+            createNewChat(); // Call handleSendMessage with 'new chat'
+        }
+
+        function appendMessage(senderClass, message) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', senderClass);
+
+            // If the sender is the assistant, do not show loading animation here
+            if (senderClass === 'assistant-message') {
+                messageElement.innerHTML = `
+                    <div class="message-content">${message}</div>
+                `;
+            } else {
+                messageElement.innerHTML = `
+                    <div class="message-content">${message}</div>
+                `;
+            }
+
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll to the bottom
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSendMessage(); // Call the function to send the message
+            }
+        });
+    </script>
+    
+</body>
+
+</html>
