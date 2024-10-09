@@ -1,3 +1,5 @@
+Skilling Guide Assistant that recommends [ITG skilling paths](https://careers.itg.online/) based on your individual or corporate skilling goals and needs.
+
 
 ### Installation
 
